@@ -86,16 +86,21 @@ class TrustLoop:
         args: dict = None,
         *,
         agent_name: str = None,
+        reason: str = None,
         raise_if_blocked: bool = False,
+        forward_to: dict = None,
     ) -> dict:
         """
         Intercept a tool call before executing it.
 
         Returns a dict with keys:
           - allowed (bool)
-          - status  ("ALLOWED" | "BLOCKED" | "PENDING")
+          - decision ("ALLOWED" | "BLOCKED" | "ESCALATED")
           - message (str, optional)
-          - approval_id (str, optional — present when status is PENDING)
+          - approval_id (str, optional — present when decision is ESCALATED)
+          - forwarded (bool, optional — True when forward_to was used)
+          - status_code (int, optional — HTTP status of the forwarded call)
+          - result (any, optional — actual response from the forwarded call)
 
         Args:
             tool_name:        The name of the tool being called.
@@ -103,15 +108,30 @@ class TrustLoop:
             agent_name:       Override the agent name set on the client.
             raise_if_blocked: If True, raises TrustLoopBlockedError or
                               TrustLoopPendingError instead of returning.
+            forward_to:       Optional dict with keys url, method, headers, body.
+                              If provided and the call is ALLOWED, TrustLoop
+                              forwards the request to that HTTPS endpoint and
+                              returns the real response. Blocked calls are never
+                              forwarded.
 
-        Example::
+        Example — check only::
 
             result = tl.intercept("send_email", {"to": "user@co.com"})
-            if not result["allowed"]:
-                return  # skip
+            if result["allowed"]:
+                send_email(...)
 
-            # Or raise automatically:
-            tl.intercept("drop_table", raise_if_blocked=True)
+        Example — check + execute in one call::
+
+            result = tl.intercept(
+                "send_email",
+                {"to": "user@co.com", "subject": "Hello"},
+                forward_to={
+                    "url": "https://api.resend.com/emails",
+                    "method": "POST",
+                    "headers": {"Authorization": "Bearer re_xxx"},
+                },
+            )
+            # result["forwarded"] is True, result["result"] is the Resend response
         """
         payload: dict = {
             "tool_name": tool_name,
@@ -120,14 +140,18 @@ class TrustLoop:
         name = agent_name or self.agent_name
         if name:
             payload["agent_name"] = name
+        if reason:
+            payload["reason"] = reason
+        if forward_to:
+            payload["forward_to"] = forward_to
 
         result = self._request("POST", "/api/intercept", payload)
 
         if raise_if_blocked:
-            status = result.get("status", "")
-            if status == "BLOCKED":
+            decision = result.get("decision", result.get("status", ""))
+            if decision == "BLOCKED":
                 raise TrustLoopBlockedError(tool_name, result.get("message"))
-            if status == "PENDING":
+            if decision in ("ESCALATED", "PENDING"):
                 raise TrustLoopPendingError(tool_name, result.get("approval_id"))
 
         return result

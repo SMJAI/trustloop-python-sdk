@@ -84,21 +84,34 @@ class AsyncTrustLoop:
         args: dict = None,
         *,
         agent_name: str = None,
+        reason: str = None,
         raise_if_blocked: bool = False,
+        forward_to: dict = None,
     ) -> dict:
-        """Async version of TrustLoop.intercept."""
+        """
+        Async version of TrustLoop.intercept.
+
+        Args:
+            forward_to: Optional dict with keys url, method, headers, body.
+                        If provided and ALLOWED, TrustLoop forwards the request
+                        and returns the real response in result["result"].
+        """
         payload: dict = {"tool_name": tool_name, "arguments": args or {}}
         name = agent_name or self.agent_name
         if name:
             payload["agent_name"] = name
+        if reason:
+            payload["reason"] = reason
+        if forward_to:
+            payload["forward_to"] = forward_to
 
         result = await self._request("POST", "/api/intercept", payload)
 
         if raise_if_blocked:
-            status = result.get("status", "")
-            if status == "BLOCKED":
+            decision = result.get("decision", result.get("status", ""))
+            if decision == "BLOCKED":
                 raise TrustLoopBlockedError(tool_name, result.get("message"))
-            if status == "PENDING":
+            if decision in ("ESCALATED", "PENDING"):
                 raise TrustLoopPendingError(tool_name, result.get("approval_id"))
 
         return result
