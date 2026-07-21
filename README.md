@@ -72,6 +72,18 @@ result = tl.intercept("delete_database", {"table": "users"})
 # }
 ```
 
+### Agent reason field
+
+Pass a plain English explanation of why the agent is taking an action. The reason is stored in the audit log and shown in the approval email so the human approver sees intent, not just raw arguments. PII is masked before storage.
+
+```python
+result = tl.intercept(
+    "transfer_funds",
+    {"to_account": "GB29NWBK60161331926819", "amount": 5000},
+    reason="User requested urgent payment to cover supplier invoice INV-0042 due today",
+)
+```
+
 ### Auto-raise on block
 
 ```python
