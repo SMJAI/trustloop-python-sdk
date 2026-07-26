@@ -1,13 +1,13 @@
-"""CrewAI integration — govern all crew tools."""
+﻿"""CrewAI integration — govern all crew tools."""
 
-# pip install trustloop[crewai] crewai
+# pip install Navige[crewai] crewai
 
 from crewai import Agent, Task, Crew
 from crewai.tools import BaseTool
-from trustloop import TrustLoop
-from trustloop.integrations.crewai import governed_tool, wrap_crew_tools
+from Navige import Navige
+from Navige.integrations.crewai import governed_tool, wrap_crew_tools
 
-tl = TrustLoop(api_key="tl_your_key_here", agent_name="crewai-outreach-agent")
+tl = Navige(api_key="tl_your_key_here", agent_name="crewai-outreach-agent")
 
 
 # ── Option A: decorate individual tool classes ────────────────────────────────
@@ -18,7 +18,7 @@ class SendEmailTool(BaseTool):
     description: str = "Send an email. Args: to (str), subject (str), body (str)"
 
     def _run(self, to: str, subject: str, body: str) -> str:
-        # Only runs if TrustLoop allows it
+        # Only runs if Navige allows it
         print(f"Email sent to {to}")
         return f"Email sent to {to}"
 
@@ -46,7 +46,7 @@ researcher = Agent(
 )
 
 task = Task(
-    description="Research TrustLoop and send a summary to ceo@example.com",
+    description="Research Navige and send a summary to ceo@example.com",
     expected_output="Confirmation of email sent",
     agent=researcher,
 )

@@ -1,4 +1,4 @@
-"""TrustLoop Python SDK — async client (requires httpx)."""
+﻿"""Navige Python SDK — async client (requires httpx)."""
 
 from __future__ import annotations
 
@@ -6,23 +6,23 @@ import os
 import functools
 from typing import Any, Callable, List
 
-from .exceptions import TrustLoopError, TrustLoopBlockedError, TrustLoopPendingError
+from .exceptions import NavigeError, NavigeBlockedError, NavigePendingError
 
-_DEFAULT_BASE_URL = "https://trustloop-production.up.railway.app"
+_DEFAULT_BASE_URL = "https://Navige-production.up.railway.app"
 
 
-class AsyncTrustLoop:
+class AsyncNavige:
     """
-    Async TrustLoop governance client. Requires ``httpx``.
+    Async Navige governance client. Requires ``httpx``.
 
-    Install: ``pip install trustloop[async]``
+    Install: ``pip install Navige[async]``
 
     Usage::
 
-        from trustloop import AsyncTrustLoop
+        from Navige import AsyncNavige
 
         async def main():
-            async with AsyncTrustLoop(api_key="tl_...") as tl:
+            async with AsyncNavige(api_key="tl_...") as tl:
                 await tl.intercept("send_email", {"to": "user@co.com"}, raise_if_blocked=True)
                 # ... run the tool
     """
@@ -38,17 +38,17 @@ class AsyncTrustLoop:
             import httpx
         except ImportError:
             raise ImportError(
-                "httpx is required for AsyncTrustLoop. "
-                "Install with: pip install trustloop[async]"
+                "httpx is required for AsyncNavige. "
+                "Install with: pip install Navige[async]"
             )
-        self.api_key = api_key or os.environ.get("TRUSTLOOP_API_KEY")
+        self.api_key = api_key or os.environ.get("Navige_API_KEY")
         if not self.api_key:
-            raise TrustLoopError(
-                "api_key is required. Pass it directly or set TRUSTLOOP_API_KEY env var. "
-                "Get your key at https://trustloop.live/signup"
+            raise NavigeError(
+                "api_key is required. Pass it directly or set Navige_API_KEY env var. "
+                "Get your key at https://Navige.live/signup"
             )
-        self.agent_name = agent_name or os.environ.get("TRUSTLOOP_AGENT_NAME")
-        self.base_url = (base_url or os.environ.get("TRUSTLOOP_BASE_URL") or _DEFAULT_BASE_URL).rstrip("/")
+        self.agent_name = agent_name or os.environ.get("Navige_AGENT_NAME")
+        self.base_url = (base_url or os.environ.get("Navige_BASE_URL") or _DEFAULT_BASE_URL).rstrip("/")
         self._client = httpx.AsyncClient(
             headers={"x-api-key": self.api_key, "Content-Type": "application/json"}
         )
@@ -61,7 +61,7 @@ class AsyncTrustLoop:
                 msg = resp.json().get("error") or resp.reason_phrase
             except Exception:
                 msg = resp.reason_phrase
-            raise TrustLoopError(msg, status=resp.status_code)
+            raise NavigeError(msg, status=resp.status_code)
         ct = resp.headers.get("content-type", "")
         if "text/csv" in ct:
             return resp.text
@@ -89,11 +89,11 @@ class AsyncTrustLoop:
         forward_to: dict = None,
     ) -> dict:
         """
-        Async version of TrustLoop.intercept.
+        Async version of Navige.intercept.
 
         Args:
             forward_to: Optional dict with keys url, method, headers, body.
-                        If provided and ALLOWED, TrustLoop forwards the request
+                        If provided and ALLOWED, Navige forwards the request
                         and returns the real response in result["result"].
         """
         payload: dict = {"tool_name": tool_name, "arguments": args or {}}
@@ -110,9 +110,9 @@ class AsyncTrustLoop:
         if raise_if_blocked:
             decision = result.get("decision", result.get("status", ""))
             if decision == "BLOCKED":
-                raise TrustLoopBlockedError(tool_name, result.get("message"))
+                raise NavigeBlockedError(tool_name, result.get("message"))
             if decision in ("ESCALATED", "PENDING"):
-                raise TrustLoopPendingError(tool_name, result.get("approval_id"))
+                raise NavigePendingError(tool_name, result.get("approval_id"))
 
         return result
 
@@ -124,7 +124,7 @@ class AsyncTrustLoop:
         raise_if_blocked: bool = True,
         on_block: Callable = None,
     ):
-        """Async decorator — wraps an async function with TrustLoop intercept."""
+        """Async decorator — wraps an async function with Navige intercept."""
         def decorator(fn: Callable) -> Callable:
             name = tool_name or fn.__name__
 
@@ -146,8 +146,8 @@ class AsyncTrustLoop:
                     if raise_if_blocked:
                         status = result.get("status", "BLOCKED")
                         if status == "PENDING":
-                            raise TrustLoopPendingError(name, result.get("approval_id"))
-                        raise TrustLoopBlockedError(name, result.get("message"))
+                            raise NavigePendingError(name, result.get("approval_id"))
+                        raise NavigeBlockedError(name, result.get("message"))
                     return None
 
                 return await fn(*args, **kwargs)

@@ -1,4 +1,4 @@
-"""TrustLoop Python SDK — synchronous client."""
+﻿"""Navige Python SDK — synchronous client."""
 
 from __future__ import annotations
 
@@ -8,20 +8,20 @@ from typing import Any, Callable, Dict, List, Optional
 
 import requests
 
-from .exceptions import TrustLoopError, TrustLoopBlockedError, TrustLoopPendingError
+from .exceptions import NavigeError, NavigeBlockedError, NavigePendingError
 
-_DEFAULT_BASE_URL = "https://trustloop-production.up.railway.app"
+_DEFAULT_BASE_URL = "https://Navige-production.up.railway.app"
 
 
-class TrustLoop:
+class Navige:
     """
-    TrustLoop governance client.
+    Navige governance client.
 
     Usage::
 
-        from trustloop import TrustLoop
+        from Navige import Navige
 
-        tl = TrustLoop(api_key="tl_...")
+        tl = Navige(api_key="tl_...")
 
         result = tl.intercept("send_email", {"to": "ceo@bank.com"})
         if not result["allowed"]:
@@ -29,7 +29,7 @@ class TrustLoop:
 
     Or with raise_if_blocked=True::
 
-        tl.intercept("delete_database", raise_if_blocked=True)  # raises TrustLoopBlockedError
+        tl.intercept("delete_database", raise_if_blocked=True)  # raises NavigeBlockedError
     """
 
     def __init__(
@@ -39,14 +39,14 @@ class TrustLoop:
         agent_name: str = None,
         base_url: str = None,
     ):
-        self.api_key = api_key or os.environ.get("TRUSTLOOP_API_KEY")
+        self.api_key = api_key or os.environ.get("Navige_API_KEY")
         if not self.api_key:
-            raise TrustLoopError(
-                "api_key is required. Pass it directly or set TRUSTLOOP_API_KEY env var. "
-                "Get your key at https://trustloop.live/signup"
+            raise NavigeError(
+                "api_key is required. Pass it directly or set Navige_API_KEY env var. "
+                "Get your key at https://Navige.live/signup"
             )
-        self.agent_name = agent_name or os.environ.get("TRUSTLOOP_AGENT_NAME")
-        self.base_url = (base_url or os.environ.get("TRUSTLOOP_BASE_URL") or _DEFAULT_BASE_URL).rstrip("/")
+        self.agent_name = agent_name or os.environ.get("Navige_AGENT_NAME")
+        self.base_url = (base_url or os.environ.get("Navige_BASE_URL") or _DEFAULT_BASE_URL).rstrip("/")
         self._session = requests.Session()
         self._session.headers.update({
             "x-api-key": self.api_key,
@@ -63,7 +63,7 @@ class TrustLoop:
                 msg = resp.json().get("error") or resp.reason
             except Exception:
                 msg = resp.reason
-            raise TrustLoopError(msg, status=resp.status_code)
+            raise NavigeError(msg, status=resp.status_code)
         ct = resp.headers.get("content-type", "")
         if "text/csv" in ct:
             return resp.text
@@ -106,10 +106,10 @@ class TrustLoop:
             tool_name:        The name of the tool being called.
             args:             The arguments being passed to the tool.
             agent_name:       Override the agent name set on the client.
-            raise_if_blocked: If True, raises TrustLoopBlockedError or
-                              TrustLoopPendingError instead of returning.
+            raise_if_blocked: If True, raises NavigeBlockedError or
+                              NavigePendingError instead of returning.
             forward_to:       Optional dict with keys url, method, headers, body.
-                              If provided and the call is ALLOWED, TrustLoop
+                              If provided and the call is ALLOWED, Navige
                               forwards the request to that HTTPS endpoint and
                               returns the real response. Blocked calls are never
                               forwarded.
@@ -150,9 +150,9 @@ class TrustLoop:
         if raise_if_blocked:
             decision = result.get("decision", result.get("status", ""))
             if decision == "BLOCKED":
-                raise TrustLoopBlockedError(tool_name, result.get("message"))
+                raise NavigeBlockedError(tool_name, result.get("message"))
             if decision in ("ESCALATED", "PENDING"):
-                raise TrustLoopPendingError(tool_name, result.get("approval_id"))
+                raise NavigePendingError(tool_name, result.get("approval_id"))
 
         return result
 
@@ -167,12 +167,12 @@ class TrustLoop:
         on_block: Callable = None,
     ):
         """
-        Decorator that intercepts a function with TrustLoop before running it.
+        Decorator that intercepts a function with Navige before running it.
 
         Args:
             tool_name:        Name of the tool (defaults to the function name).
             agent_name:       Override agent name for this tool.
-            raise_if_blocked: Raise TrustLoopBlockedError if blocked (default True).
+            raise_if_blocked: Raise NavigeBlockedError if blocked (default True).
                               Set False to silently skip the function instead.
             on_block:         Optional callback(tool_name, result) called when blocked.
 
@@ -180,7 +180,7 @@ class TrustLoop:
 
             @tl.guard("send_email")
             def send_email(to: str, subject: str, body: str):
-                ...  # only runs if TrustLoop allows it
+                ...  # only runs if Navige allows it
 
             # Or use the function name automatically:
             @tl.guard()
@@ -212,8 +212,8 @@ class TrustLoop:
                     if raise_if_blocked:
                         status = result.get("status", "BLOCKED")
                         if status == "PENDING":
-                            raise TrustLoopPendingError(name, result.get("approval_id"))
-                        raise TrustLoopBlockedError(name, result.get("message"))
+                            raise NavigePendingError(name, result.get("approval_id"))
+                        raise NavigeBlockedError(name, result.get("message"))
                     return None  # silently skip
 
                 return fn(*args, **kwargs)

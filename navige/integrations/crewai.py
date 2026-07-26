@@ -1,13 +1,13 @@
-"""TrustLoop integration for CrewAI.
+﻿"""Navige integration for CrewAI.
 
-Install: pip install trustloop[crewai]
+Install: pip install Navige[crewai]
 
 Usage::
 
-    from trustloop import TrustLoop
-    from trustloop.integrations.crewai import governed_tool
+    from Navige import Navige
+    from Navige.integrations.crewai import governed_tool
 
-    tl = TrustLoop(api_key="tl_...", agent_name="my-crew")
+    tl = Navige(api_key="tl_...", agent_name="my-crew")
 
     @governed_tool(tl)
     class SendEmailTool(BaseTool):
@@ -15,7 +15,7 @@ Usage::
         description: str = "Send an email to a recipient"
 
         def _run(self, to: str, subject: str, body: str) -> str:
-            # Only reaches here if TrustLoop allows it
+            # Only reaches here if Navige allows it
             ...
 """
 
@@ -23,12 +23,12 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from trustloop.exceptions import TrustLoopBlockedError, TrustLoopPendingError
+from Navige.exceptions import NavigeBlockedError, NavigePendingError
 
 
 def governed_tool(tl, *, agent_name: str = None, raise_if_blocked: bool = True):
     """
-    Class decorator that wraps a CrewAI BaseTool with TrustLoop governance.
+    Class decorator that wraps a CrewAI BaseTool with Navige governance.
 
     Usage::
 
@@ -59,9 +59,9 @@ def governed_tool(tl, *, agent_name: str = None, raise_if_blocked: bool = True):
                 if raise_if_blocked:
                     status = result.get("status", "BLOCKED")
                     if status == "PENDING":
-                        raise TrustLoopPendingError(self.name, result.get("approval_id"))
-                    raise TrustLoopBlockedError(self.name, result.get("message"))
-                return f"[TrustLoop] Tool '{self.name}' was blocked."
+                        raise NavigePendingError(self.name, result.get("approval_id"))
+                    raise NavigeBlockedError(self.name, result.get("message"))
+                return f"[Navige] Tool '{self.name}' was blocked."
 
             return original_run(self, *args, **kwargs)
 
@@ -73,14 +73,14 @@ def governed_tool(tl, *, agent_name: str = None, raise_if_blocked: bool = True):
 
 def wrap_crew_tools(tools: list, tl, *, agent_name: str = None) -> list:
     """
-    Wrap a list of CrewAI tool instances with TrustLoop governance.
+    Wrap a list of CrewAI tool instances with Navige governance.
 
     Drop-in replacement — pass the result directly to your CrewAI Agent.
 
     Example::
 
         from crewai import Agent
-        from trustloop.integrations.crewai import wrap_crew_tools
+        from Navige.integrations.crewai import wrap_crew_tools
 
         tools = wrap_crew_tools([search_tool, code_tool], tl)
         agent = Agent(role="researcher", tools=tools, ...)
@@ -108,8 +108,8 @@ def wrap_crew_tools(tools: list, tl, *, agent_name: str = None) -> list:
                 if not result.get("allowed", True):
                     status = result.get("status", "BLOCKED")
                     if status == "PENDING":
-                        raise TrustLoopPendingError(name, result.get("approval_id"))
-                    raise TrustLoopBlockedError(name, result.get("message"))
+                        raise NavigePendingError(name, result.get("approval_id"))
+                    raise NavigeBlockedError(name, result.get("message"))
 
                 return orig(self, *args, **kwargs)
             return governed

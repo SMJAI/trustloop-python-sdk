@@ -1,15 +1,15 @@
-"""TrustLoop integration for LangChain.
+﻿"""Navige integration for LangChain.
 
-Install: pip install trustloop[langchain]
+Install: pip install Navige[langchain]
 
 Usage::
 
-    from trustloop import TrustLoop
-    from trustloop.integrations.langchain import wrap_tools
+    from Navige import Navige
+    from Navige.integrations.langchain import wrap_tools
 
-    tl = TrustLoop(api_key="tl_...", agent_name="my-langchain-agent")
+    tl = Navige(api_key="tl_...", agent_name="my-langchain-agent")
 
-    # Wrap all your tools — TrustLoop intercepts every call
+    # Wrap all your tools — Navige intercepts every call
     tools = wrap_tools([search_tool, email_tool, db_tool], tl)
 
     agent = create_openai_tools_agent(llm, tools, prompt)
@@ -19,18 +19,18 @@ from __future__ import annotations
 
 from typing import Any, List, Optional, Type
 
-from trustloop.exceptions import TrustLoopBlockedError, TrustLoopPendingError
+from Navige.exceptions import NavigeBlockedError, NavigePendingError
 
 
 def wrap_tools(tools: list, tl, *, agent_name: str = None, raise_if_blocked: bool = True) -> list:
     """
-    Wrap a list of LangChain tools so every invocation is intercepted by TrustLoop.
+    Wrap a list of LangChain tools so every invocation is intercepted by Navige.
 
     Args:
         tools:            List of LangChain BaseTool instances.
-        tl:               TrustLoop client instance.
+        tl:               Navige client instance.
         agent_name:       Override agent name (defaults to tl.agent_name).
-        raise_if_blocked: Raise TrustLoopBlockedError if a tool is blocked.
+        raise_if_blocked: Raise NavigeBlockedError if a tool is blocked.
 
     Returns:
         New list of wrapped tools — drop-in replacement for the original list.
@@ -38,7 +38,7 @@ def wrap_tools(tools: list, tl, *, agent_name: str = None, raise_if_blocked: boo
     Example::
 
         from langchain_community.tools import DuckDuckGoSearchRun
-        from trustloop.integrations.langchain import wrap_tools
+        from Navige.integrations.langchain import wrap_tools
 
         tools = wrap_tools([DuckDuckGoSearchRun()], tl)
     """
@@ -46,7 +46,7 @@ def wrap_tools(tools: list, tl, *, agent_name: str = None, raise_if_blocked: boo
 
 
 def _wrap_single_tool(tool, tl, *, agent_name: str = None, raise_if_blocked: bool = True):
-    """Wrap a single LangChain BaseTool with TrustLoop intercept."""
+    """Wrap a single LangChain BaseTool with Navige intercept."""
     try:
         from langchain_core.tools import BaseTool
     except ImportError:
@@ -54,7 +54,7 @@ def _wrap_single_tool(tool, tl, *, agent_name: str = None, raise_if_blocked: boo
             from langchain.tools import BaseTool
         except ImportError:
             raise ImportError(
-                "langchain-core is required. Install with: pip install trustloop[langchain]"
+                "langchain-core is required. Install with: pip install Navige[langchain]"
             )
 
     original_run = tool._run
@@ -78,9 +78,9 @@ def _wrap_single_tool(tool, tl, *, agent_name: str = None, raise_if_blocked: boo
             if raise_if_blocked:
                 status = result.get("status", "BLOCKED")
                 if status == "PENDING":
-                    raise TrustLoopPendingError(tool_name, result.get("approval_id"))
-                raise TrustLoopBlockedError(tool_name, result.get("message"))
-            return f"[TrustLoop] Tool '{tool_name}' was blocked."
+                    raise NavigePendingError(tool_name, result.get("approval_id"))
+                raise NavigeBlockedError(tool_name, result.get("message"))
+            return f"[Navige] Tool '{tool_name}' was blocked."
 
         return original_run(*args, **kwargs)
 
@@ -100,9 +100,9 @@ def _wrap_single_tool(tool, tl, *, agent_name: str = None, raise_if_blocked: boo
             if raise_if_blocked:
                 status = result.get("status", "BLOCKED")
                 if status == "PENDING":
-                    raise TrustLoopPendingError(tool_name, result.get("approval_id"))
-                raise TrustLoopBlockedError(tool_name, result.get("message"))
-            return f"[TrustLoop] Tool '{tool_name}' was blocked."
+                    raise NavigePendingError(tool_name, result.get("approval_id"))
+                raise NavigeBlockedError(tool_name, result.get("message"))
+            return f"[Navige] Tool '{tool_name}' was blocked."
 
         return await original_arun(*args, **kwargs)
 

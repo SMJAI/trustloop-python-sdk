@@ -1,8 +1,8 @@
-"""Basic usage — any Python agent, any framework."""
+﻿"""Basic usage — any Python agent, any framework."""
 
-from trustloop import TrustLoop, TrustLoopBlockedError
+from Navige import Navige, NavigeBlockedError
 
-tl = TrustLoop(api_key="tl_your_key_here", agent_name="my-agent")
+tl = Navige(api_key="tl_your_key_here", agent_name="my-agent")
 
 
 # ── Option 1: Check and proceed manually ─────────────────────────────────────
@@ -23,8 +23,8 @@ def send_email(to: str, subject: str, body: str):
 def delete_records(table: str, where: dict):
     try:
         tl.intercept("delete_records", {"table": table, "where": where}, raise_if_blocked=True)
-    except TrustLoopBlockedError as e:
-        print(f"Blocked by TrustLoop: {e}")
+    except NavigeBlockedError as e:
+        print(f"Blocked by Navige: {e}")
         return
 
     # ... actual delete logic here
@@ -35,7 +35,7 @@ def delete_records(table: str, where: dict):
 
 @tl.guard("transfer_funds")
 def transfer_funds(amount: float, to_account: str):
-    # This function body only runs if TrustLoop allows it
+    # This function body only runs if Navige allows it
     print(f"Transferring £{amount} to {to_account}")
 
 

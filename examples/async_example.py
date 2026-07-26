@@ -1,13 +1,13 @@
-"""Async usage — for async agent frameworks."""
+﻿"""Async usage — for async agent frameworks."""
 
-# pip install trustloop[async]
+# pip install Navige[async]
 
 import asyncio
-from trustloop import AsyncTrustLoop, TrustLoopBlockedError
+from Navige import AsyncNavige, NavigeBlockedError
 
 
 async def main():
-    async with AsyncTrustLoop(api_key="tl_your_key_here", agent_name="async-agent") as tl:
+    async with AsyncNavige(api_key="tl_your_key_here", agent_name="async-agent") as tl:
 
         # ── Manual check ─────────────────────────────────────────────────────
         result = await tl.intercept("send_email", {"to": "ceo@co.com"})
@@ -17,7 +17,7 @@ async def main():
         # ── Auto-raise ────────────────────────────────────────────────────────
         try:
             await tl.intercept("delete_all_records", raise_if_blocked=True)
-        except TrustLoopBlockedError as e:
+        except NavigeBlockedError as e:
             print(f"Blocked: {e}")
 
         # ── Decorator on async function ───────────────────────────────────────

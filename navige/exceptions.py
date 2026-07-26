@@ -1,5 +1,5 @@
-class TrustLoopError(Exception):
-    """Raised when TrustLoop returns an error or blocks a tool call."""
+﻿class NavigeError(Exception):
+    """Raised when Navige returns an error or blocks a tool call."""
 
     def __init__(self, message: str, status: int = None, tool_name: str = None):
         super().__init__(message)
@@ -7,18 +7,18 @@ class TrustLoopError(Exception):
         self.tool_name = tool_name
 
 
-class TrustLoopBlockedError(TrustLoopError):
+class NavigeBlockedError(NavigeError):
     """Raised when a tool call is blocked by a governance rule or kill-switch."""
 
     def __init__(self, tool_name: str, reason: str = None):
-        msg = f"Tool '{tool_name}' was blocked by TrustLoop"
+        msg = f"Tool '{tool_name}' was blocked by Navige"
         if reason:
             msg += f": {reason}"
         super().__init__(msg, status=403, tool_name=tool_name)
         self.reason = reason
 
 
-class TrustLoopPendingError(TrustLoopError):
+class NavigePendingError(NavigeError):
     """Raised when a tool call requires human approval before proceeding."""
 
     def __init__(self, tool_name: str, approval_id: str = None):
