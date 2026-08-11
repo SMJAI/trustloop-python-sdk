@@ -1,6 +1,6 @@
 ﻿"""Basic usage — any Python agent, any framework."""
 
-from Navige import Navige, NavigeBlockedError
+from navige import Navige, NavigeBlockedError
 
 tl = Navige(api_key="tl_your_key_here", agent_name="my-agent")
 

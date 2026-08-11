@@ -1,9 +1,9 @@
 ﻿"""LangChain integration — wrap all tools in one line."""
 
-from Navige import Navige
-from Navige.integrations.langchain import wrap_tools
+from navige import Navige
+from navige.integrations.langchain import wrap_tools
 
-# pip install Navige[langchain] langchain-openai langchain-community
+# pip install navige-sdk[langchain] langchain-openai langchain-community
 
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_openai_tools_agent

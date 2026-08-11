@@ -1,11 +1,11 @@
 ﻿"""CrewAI integration — govern all crew tools."""
 
-# pip install Navige[crewai] crewai
+# pip install navige-sdk[crewai] crewai
 
 from crewai import Agent, Task, Crew
 from crewai.tools import BaseTool
-from Navige import Navige
-from Navige.integrations.crewai import governed_tool, wrap_crew_tools
+from navige import Navige
+from navige.integrations.crewai import governed_tool, wrap_crew_tools
 
 tl = Navige(api_key="tl_your_key_here", agent_name="crewai-outreach-agent")
 

@@ -1,11 +1,11 @@
 ﻿"""Navige integration for LangChain.
 
-Install: pip install Navige[langchain]
+Install: pip install navige-sdk[langchain]
 
 Usage::
 
-    from Navige import Navige
-    from Navige.integrations.langchain import wrap_tools
+    from navige import Navige
+    from navige.integrations.langchain import wrap_tools
 
     tl = Navige(api_key="tl_...", agent_name="my-langchain-agent")
 
@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from typing import Any, List, Optional, Type
 
-from Navige.exceptions import NavigeBlockedError, NavigePendingError
+from navige.exceptions import NavigeBlockedError, NavigePendingError
 
 
 def wrap_tools(tools: list, tl, *, agent_name: str = None, raise_if_blocked: bool = True) -> list:
@@ -38,7 +38,7 @@ def wrap_tools(tools: list, tl, *, agent_name: str = None, raise_if_blocked: boo
     Example::
 
         from langchain_community.tools import DuckDuckGoSearchRun
-        from Navige.integrations.langchain import wrap_tools
+        from navige.integrations.langchain import wrap_tools
 
         tools = wrap_tools([DuckDuckGoSearchRun()], tl)
     """
@@ -54,7 +54,7 @@ def _wrap_single_tool(tool, tl, *, agent_name: str = None, raise_if_blocked: boo
             from langchain.tools import BaseTool
         except ImportError:
             raise ImportError(
-                "langchain-core is required. Install with: pip install Navige[langchain]"
+                "langchain-core is required. Install with: pip install navige-sdk[langchain]"
             )
 
     original_run = tool._run

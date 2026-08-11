@@ -15,11 +15,11 @@ class AsyncNavige:
     """
     Async Navige governance client. Requires ``httpx``.
 
-    Install: ``pip install Navige[async]``
+    Install: ``pip install navige-sdk[async]``
 
     Usage::
 
-        from Navige import AsyncNavige
+        from navige import AsyncNavige
 
         async def main():
             async with AsyncNavige(api_key="tl_...") as tl:
@@ -39,16 +39,16 @@ class AsyncNavige:
         except ImportError:
             raise ImportError(
                 "httpx is required for AsyncNavige. "
-                "Install with: pip install Navige[async]"
+                "Install with: pip install navige-sdk[async]"
             )
-        self.api_key = api_key or os.environ.get("Navige_API_KEY")
+        self.api_key = api_key or os.environ.get("NAVIGE_API_KEY")
         if not self.api_key:
             raise NavigeError(
-                "api_key is required. Pass it directly or set Navige_API_KEY env var. "
-                "Get your key at https://Navige.live/signup"
+                "api_key is required. Pass it directly or set NAVIGE_API_KEY env var. "
+                "Get your key at https://navige.ai/signup"
             )
-        self.agent_name = agent_name or os.environ.get("Navige_AGENT_NAME")
-        self.base_url = (base_url or os.environ.get("Navige_BASE_URL") or _DEFAULT_BASE_URL).rstrip("/")
+        self.agent_name = agent_name or os.environ.get("NAVIGE_AGENT_NAME")
+        self.base_url = (base_url or os.environ.get("NAVIGE_BASE_URL") or _DEFAULT_BASE_URL).rstrip("/")
         self._client = httpx.AsyncClient(
             headers={"x-api-key": self.api_key, "Content-Type": "application/json"}
         )

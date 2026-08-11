@@ -1,11 +1,11 @@
 ﻿"""Navige integration for CrewAI.
 
-Install: pip install Navige[crewai]
+Install: pip install navige-sdk[crewai]
 
 Usage::
 
-    from Navige import Navige
-    from Navige.integrations.crewai import governed_tool
+    from navige import Navige
+    from navige.integrations.crewai import governed_tool
 
     tl = Navige(api_key="tl_...", agent_name="my-crew")
 
@@ -23,7 +23,7 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from Navige.exceptions import NavigeBlockedError, NavigePendingError
+from navige.exceptions import NavigeBlockedError, NavigePendingError
 
 
 def governed_tool(tl, *, agent_name: str = None, raise_if_blocked: bool = True):
@@ -80,7 +80,7 @@ def wrap_crew_tools(tools: list, tl, *, agent_name: str = None) -> list:
     Example::
 
         from crewai import Agent
-        from Navige.integrations.crewai import wrap_crew_tools
+        from navige.integrations.crewai import wrap_crew_tools
 
         tools = wrap_crew_tools([search_tool, code_tool], tl)
         agent = Agent(role="researcher", tools=tools, ...)

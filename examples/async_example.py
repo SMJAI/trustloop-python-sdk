@@ -1,9 +1,9 @@
 ﻿"""Async usage — for async agent frameworks."""
 
-# pip install Navige[async]
+# pip install navige-sdk[async]
 
 import asyncio
-from Navige import AsyncNavige, NavigeBlockedError
+from navige import AsyncNavige, NavigeBlockedError
 
 
 async def main():

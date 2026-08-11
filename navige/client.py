@@ -19,7 +19,7 @@ class Navige:
 
     Usage::
 
-        from Navige import Navige
+        from navige import Navige
 
         tl = Navige(api_key="tl_...")
 
@@ -39,14 +39,14 @@ class Navige:
         agent_name: str = None,
         base_url: str = None,
     ):
-        self.api_key = api_key or os.environ.get("Navige_API_KEY")
+        self.api_key = api_key or os.environ.get("NAVIGE_API_KEY")
         if not self.api_key:
             raise NavigeError(
-                "api_key is required. Pass it directly or set Navige_API_KEY env var. "
-                "Get your key at https://Navige.live/signup"
+                "api_key is required. Pass it directly or set NAVIGE_API_KEY env var. "
+                "Get your key at https://navige.ai/signup"
             )
-        self.agent_name = agent_name or os.environ.get("Navige_AGENT_NAME")
-        self.base_url = (base_url or os.environ.get("Navige_BASE_URL") or _DEFAULT_BASE_URL).rstrip("/")
+        self.agent_name = agent_name or os.environ.get("NAVIGE_AGENT_NAME")
+        self.base_url = (base_url or os.environ.get("NAVIGE_BASE_URL") or _DEFAULT_BASE_URL).rstrip("/")
         self._session = requests.Session()
         self._session.headers.update({
             "x-api-key": self.api_key,
