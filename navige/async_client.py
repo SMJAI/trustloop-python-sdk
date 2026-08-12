@@ -8,7 +8,7 @@ from typing import Any, Callable, List
 
 from .exceptions import NavigeError, NavigeBlockedError, NavigePendingError
 
-_DEFAULT_BASE_URL = "https://Navige-production.up.railway.app"
+_DEFAULT_BASE_URL = "https://api.navige.ai"
 
 
 class AsyncNavige:

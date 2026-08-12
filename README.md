@@ -1,43 +1,43 @@
-# trustloop
+# navige-sdk
 
-Python SDK for [TrustLoop](https://trustloop.live) — governance, audit trail, and kill-switch for AI agents.
+Python SDK for [Navige](https://navige.ai) — governance, audit trail, and kill-switch for AI agents.
 
 Intercept every tool call your agent makes. Log it. Block dangerous actions. Require human approval. Works with LangChain, CrewAI, AutoGen, or any custom Python agent.
 
 ## Install
 
 ```bash
-pip install trustloop
+pip install navige-sdk
 ```
 
 With async support:
 ```bash
-pip install trustloop[async]
+pip install navige-sdk[async]
 ```
 
 With LangChain integration:
 ```bash
-pip install trustloop[langchain]
+pip install navige-sdk[langchain]
 ```
 
 With CrewAI integration:
 ```bash
-pip install trustloop[crewai]
+pip install navige-sdk[crewai]
 ```
 
 Everything:
 ```bash
-pip install trustloop[all]
+pip install navige-sdk[all]
 ```
 
 ## Quick start
 
-Get your free API key at [trustloop.live/signup](https://trustloop.live/signup).
+Get your free API key at [navige.ai/signup](https://navige.ai/signup).
 
 ```python
-from trustloop import TrustLoop
+from navige import Navige
 
-tl = TrustLoop(api_key="tl_your_key_here", agent_name="my-agent")
+tl = Navige(api_key="tl_your_key_here", agent_name="my-agent")
 
 # Check before running any tool
 result = tl.intercept("send_email", {"to": "ceo@bank.com", "body": "..."})
@@ -50,12 +50,12 @@ if not result["allowed"]:
 Or set your key as an env var and let the SDK find it:
 
 ```bash
-export TRUSTLOOP_API_KEY="tl_your_key_here"
-export TRUSTLOOP_AGENT_NAME="my-agent"
+export NAVIGE_API_KEY="tl_your_key_here"
+export NAVIGE_AGENT_NAME="my-agent"
 ```
 
 ```python
-tl = TrustLoop()  # reads from env
+tl = Navige()  # reads from env
 ```
 
 ## Usage
@@ -87,13 +87,13 @@ result = tl.intercept(
 ### Auto-raise on block
 
 ```python
-from trustloop import TrustLoop, TrustLoopBlockedError, TrustLoopPendingError
+from navige import Navige, NavigeBlockedError, NavigePendingError
 
 try:
     tl.intercept("transfer_funds", {"amount": 50000}, raise_if_blocked=True)
-except TrustLoopBlockedError as e:
+except NavigeBlockedError as e:
     print(f"Blocked: {e}")
-except TrustLoopPendingError as e:
+except NavigePendingError as e:
     print(f"Waiting for approval: {e.approval_id}")
 ```
 
@@ -102,7 +102,7 @@ except TrustLoopPendingError as e:
 ```python
 @tl.guard("send_email")
 def send_email(to: str, subject: str, body: str):
-    # Only runs if TrustLoop allows it
+    # Only runs if Navige allows it
     ...
 
 @tl.guard()  # uses function name as tool name
@@ -113,9 +113,9 @@ def delete_user(user_id: str):
 ### Async
 
 ```python
-from trustloop import AsyncTrustLoop
+from navige import AsyncNavige
 
-async with AsyncTrustLoop(api_key="tl_...") as tl:
+async with AsyncNavige(api_key="tl_...") as tl:
     await tl.intercept("post_tweet", {"text": "Hello world"}, raise_if_blocked=True)
 
     @tl.guard("send_email")
@@ -126,10 +126,10 @@ async with AsyncTrustLoop(api_key="tl_...") as tl:
 ## LangChain
 
 ```python
-from trustloop import TrustLoop
-from trustloop.integrations.langchain import wrap_tools
+from navige import Navige
+from navige.integrations.langchain import wrap_tools
 
-tl = TrustLoop(api_key="tl_...", agent_name="langchain-agent")
+tl = Navige(api_key="tl_...", agent_name="langchain-agent")
 
 # Wrap all tools — one line, zero boilerplate
 tools = wrap_tools([search_tool, email_tool, db_tool], tl)
@@ -140,10 +140,10 @@ agent = create_openai_tools_agent(llm, tools, prompt)
 ## CrewAI
 
 ```python
-from trustloop import TrustLoop
-from trustloop.integrations.crewai import governed_tool
+from navige import Navige
+from navige.integrations.crewai import governed_tool
 
-tl = TrustLoop(api_key="tl_...", agent_name="crew-agent")
+tl = Navige(api_key="tl_...", agent_name="crew-agent")
 
 @governed_tool(tl)
 class SendEmailTool(BaseTool):
@@ -151,7 +151,7 @@ class SendEmailTool(BaseTool):
     description = "Send an email"
 
     def _run(self, to: str, subject: str, body: str) -> str:
-        ...  # only runs if TrustLoop allows it
+        ...  # only runs if Navige allows it
 ```
 
 ## Governance rules
@@ -198,7 +198,7 @@ tl.decide(pending[0]["id"], "approved")
 ## Context manager
 
 ```python
-with TrustLoop(api_key="tl_...") as tl:
+with Navige(api_key="tl_...") as tl:
     tl.intercept("my_tool", {...})
 # connection closed automatically
 ```
@@ -206,15 +206,15 @@ with TrustLoop(api_key="tl_...") as tl:
 ## MCP (Claude Desktop)
 
 ```python
-url = TrustLoop.mcp_url("tl_your_key")
-# → "https://trustloop-production.up.railway.app/sse?api_key=tl_..."
+url = Navige.mcp_url("tl_your_key")
+# → "https://api.navige.ai/sse?api_key=tl_..."
 ```
 
 Paste this into your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "trustloop": { "url": "<paste url here>" }
+    "navige": { "url": "<paste url here>" }
   }
 }
 ```
@@ -223,16 +223,16 @@ Paste this into your `claude_desktop_config.json`:
 
 | Variable | Description |
 |----------|-------------|
-| `TRUSTLOOP_API_KEY` | Your API key (avoids passing it in code) |
-| `TRUSTLOOP_AGENT_NAME` | Default agent name for all intercepts |
-| `TRUSTLOOP_BASE_URL` | Override API base URL (for on-prem deployments) |
+| `NAVIGE_API_KEY` | Your API key (avoids passing it in code) |
+| `NAVIGE_AGENT_NAME` | Default agent name for all intercepts |
+| `NAVIGE_BASE_URL` | Override API base URL (for on-prem deployments) |
 
 ## Links
 
-- [Dashboard](https://app.trustloop.live)
-- [Docs](https://trustloop.live/docs)
-- [Sign up free](https://trustloop.live/signup)
-- [npm SDK](https://npmjs.com/package/trustloop)
+- [Dashboard](https://app.navige.ai)
+- [Docs](https://navige.ai/docs.html)
+- [Sign up free](https://navige.ai/signup)
+- [npm SDK](https://npmjs.com/package/navige)
 
 ## License
 

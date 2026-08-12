@@ -10,7 +10,7 @@ import requests
 
 from .exceptions import NavigeError, NavigeBlockedError, NavigePendingError
 
-_DEFAULT_BASE_URL = "https://Navige-production.up.railway.app"
+_DEFAULT_BASE_URL = "https://api.navige.ai"
 
 
 class Navige:
